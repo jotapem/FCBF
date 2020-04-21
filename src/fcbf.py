@@ -155,10 +155,10 @@ def fcbf(X, y, thresh):
 	slist[:,1] = idx
 	if thresh < 0:
 		thresh = np.median(slist[-1,0])
-		print "Using minimum SU value as default threshold: {0}".format(thresh)
+		print("Using minimum SU value as default threshold: {0}".format(thresh))
 	elif thresh >= 1 or thresh > max(slist[:,0]):
-		print "No relevant features selected for given threshold."
-		print "Please lower the threshold and try again."
+		print("No relevant features selected for given threshold.")
+		print("Please lower the threshold and try again.")
 		exit()
 		
 	slist = slist[slist[:,0]>thresh,:] # desc. ordered per SU[i,c]
@@ -166,8 +166,8 @@ def fcbf(X, y, thresh):
 	# identify redundant features among the relevant ones
 	cache = {}
 	m = len(slist)
-	p_su, p, p_idx = getFirstElement(slist)
-	for i in xrange(m):
+	_, p, p_idx = getFirstElement(slist)
+	for _ in range(m):
 		p = int(p)
 		q_su, q, q_idx = getNextElement(slist, p_idx)
 		if q:
@@ -183,7 +183,7 @@ def fcbf(X, y, thresh):
 					slist = removeElement(slist, q_idx)
 				q_su, q, q_idx = getNextElement(slist, q_idx)
 				
-		p_su, p, p_idx = getNextElement(slist, p_idx)
+		_, p, p_idx = getNextElement(slist, p_idx)
 		if not p_idx:
 			break
 	
@@ -213,17 +213,16 @@ def fcbf_wrapper(inpath, thresh, delim=',', header=False, classAt=-1):
 	"""
 	if os.path.exists(inpath):
 		try:
-			print "Reading file. Please wait ..."
+			print("Reading file. Please wait ...")
 			if header:
 				d = np.genfromtxt(inpath, delimiter=str(delim), skip_header=1)
 			else:
 				d = np.loadtxt(inpath, delimiter=delim)
-			print "Success! Dimensions: {0} x {1}".format(d.shape[0], d.shape[1])
-		except Exception, e:
-			print "Input file loading failed. Please check the file."
-			print "Error:", e
+			print("Success! Dimensions: {0} x {1}".format(d.shape[0], d.shape[1]))
+		except(Exception) as  e:
+			print("Input file loading failed. Please check the file.")
+			print("Error:", e)
 			raise e
-			exit()
 		
 		if classAt == -1:
 			X = d[:, :d.shape[1]-1]
@@ -234,24 +233,24 @@ def fcbf_wrapper(inpath, thresh, delim=',', header=False, classAt=-1):
 			y = d[:, classAt]	
 
 		try:
-			print "Performing FCBF selection. Please wait ..."
-			print 'X: {}, y: {}'.format(X.shape, len(y))
+			print("Performing FCBF selection. Please wait ...")
+			print('X: {}, y: {}'.format(X.shape, len(y)))
 			sbest = fcbf(X, y, thresh)
-			print "Done!"
-			print "\n#Features selected: {0}".format(len(sbest))
-			print "Selected feature indices:\n{0}".format(sbest)
+			print("Done!")
+			print("\n#Features selected: {0}".format(len(sbest)))
+			print("Selected feature indices:\n{0}".format(sbest))
 			try:
 				outpath = os.path.split(inpath)[0] \
 							+ '/features_' + os.path.split(inpath)[1]
 				np.savetxt(outpath, sbest, fmt="%0.8f,%d", newline="\n", \
 				 			header='SU, 0-based Feature')
-				print "\nFile saved successfully. Path: {0}".format(outpath)
-			except Exception, e:
-				print "Error encountered while saving file:", e
-		except Exception, e:
-			print "Error:", e			
+				print("\nFile saved successfully. Path: {0}".format(outpath))
+			except(Exception) as  e:
+				print("Error encountered while saving file:", e)
+		except(Exception) as  e:
+			print("Error:", e			)
 	else:
-		print "The file you specified does not exist."
+		print("The file you specified does not exist.")
 	
 def main():
 	## ================= PARAMS =================
@@ -283,5 +282,6 @@ if __name__ == '__main__':
 		args = parser.parse_args()
 		
 		fcbf_wrapper(os.path.abspath(args.inpath), args.thresh, \
-					args.delim.decode('string_escape'), args.header, args.classAt)
+					args.delim.encode('latin1').decode('unicode-escape').encode('latin1').decode("utf-8"), 
+					args.header, args.classAt)
 		
