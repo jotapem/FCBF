@@ -157,9 +157,7 @@ def fcbf(X, y, thresh):
 		thresh = np.median(slist[-1,0])
 		print("Using minimum SU value as default threshold: {0}".format(thresh))
 	elif thresh >= 1 or thresh > max(slist[:,0]):
-		print("No relevant features selected for given threshold.")
-		print("Please lower the threshold and try again.")
-		exit()
+		return None
 		
 	slist = slist[slist[:,0]>thresh,:] # desc. ordered per SU[i,c]
 	
